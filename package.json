@@ -2,6 +2,8 @@
   "name": "contentful-extension-color-picker",
   "version": "0.1.0",
   "private": true,
+  "author": "Gucci <npm@gucci.com>",
+  "license": "LGPL-3.0-only",
   "devDependencies": {
     "@contentful/contentful-extension-scripts": "0.21.0",
     "@contentful/eslint-config-extension": "0.4.3",
