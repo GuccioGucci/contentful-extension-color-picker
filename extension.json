@@ -1,0 +1,8 @@
+{
+  "id": "contentful-extension-color-picker",
+  "name": "contentful-extension-color-picker",
+  "srcdoc": "./build/index.html",
+  "fieldTypes": [
+    "Symbol"
+  ]
+}
