@@ -1,65 +1,91 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import * as React from 'react';
-import { FieldExtensionSDK } from 'contentful-ui-extensions-sdk';
-import { App } from './index';
-import { render, fireEvent, cleanup, configure } from '@testing-library/react';
+import * as React from 'react'
+import { FieldExtensionSDK } from 'contentful-ui-extensions-sdk'
+import { App } from './index'
+import { render, fireEvent, cleanup, configure } from '@testing-library/react'
+import { act } from 'react-dom/test-utils'
 
 configure({
   testIdAttribute: 'data-test-id'
-});
+})
 
 function renderComponent(sdk: FieldExtensionSDK) {
-  return render(<App sdk={sdk} />);
+  return render(<App sdk={sdk} />)
 }
 
 const sdk: any = {
   field: {
     getValue: jest.fn(),
+    onSchemaErrorsChanged: jest.fn(),
     onValueChanged: jest.fn(),
-    setValue: jest.fn(),
-    removeValue: jest.fn()
+    removeValue: jest.fn(),
+    setValue: jest.fn()
   },
   window: {
     startAutoResizer: jest.fn()
   }
-};
+}
+
+jest.useFakeTimers('modern')
 
 describe('App', () => {
   beforeEach(() => {
-    jest.resetAllMocks();
-  });
+    jest.resetAllMocks()
+  })
 
-  afterEach(cleanup);
+  afterEach(cleanup)
 
   it('should read a value from field.getValue() and subscribe for external changes', () => {
-    sdk.field.getValue.mockImplementation(() => 'initial-value');
-    const { getByTestId } = renderComponent(sdk);
+    sdk.field.getValue.mockImplementation(() => '#ff00ff')
+    const { getByTestId } = renderComponent(sdk)
 
-    expect(sdk.field.getValue).toHaveBeenCalled();
-    expect(sdk.field.onValueChanged).toHaveBeenCalled();
-    expect((getByTestId('my-field') as HTMLInputElement).value).toEqual('initial-value');
-  });
+    expect(sdk.field.getValue).toHaveBeenCalled()
+    expect(sdk.field.onValueChanged).toHaveBeenCalled()
+    expect((getByTestId('color-picker-input') as HTMLInputElement).value).toEqual('#ff00ff')
+  })
 
   it('should call starstartAutoResizer', () => {
-    renderComponent(sdk);
-    expect(sdk.window.startAutoResizer).toHaveBeenCalled();
-  });
+    renderComponent(sdk)
+    expect(sdk.window.startAutoResizer).toHaveBeenCalled()
+  })
 
-  it('should call setValue on every change in input and removeValue when input gets empty', () => {
-    const { getByTestId } = renderComponent(sdk);
+  it('should call setValue on every change in input and removeValue when input gets empty', async () => {
+    const { getByTestId } = renderComponent(sdk)
 
-    fireEvent.change(getByTestId('my-field'), {
-      target: { value: 'new-value' }
-    });
+    act(() => {
+      fireEvent.change(getByTestId('color-picker-input'), {
+        target: { value: '#ffffff' }
+      })
 
-    expect(sdk.field.setValue).toHaveBeenCalledWith('new-value');
+      jest.advanceTimersByTime(350)
+    })
 
-    fireEvent.change(getByTestId('my-field'), {
-      target: { value: '' }
-    });
+    expect(sdk.field.setValue).toHaveBeenCalledWith('#ffffff')
 
-    expect(sdk.field.setValue).toHaveBeenCalledTimes(1);
-    expect(sdk.field.removeValue).toHaveBeenCalledTimes(1);
-  });
-});
+    act(() => {
+      fireEvent.change(getByTestId('color-picker-input'), {
+        target: { value: undefined }
+      })
+
+      jest.advanceTimersByTime(350)
+    })
+
+    expect(sdk.field.setValue).toHaveBeenCalledTimes(1)
+    expect(sdk.field.removeValue).toHaveBeenCalledTimes(1)
+  })
+
+  it('should call removeValue when clicking on "clear"', async () => {
+    sdk.field.getValue.mockImplementation(() => '#ff00ff');
+
+    const { getByTestId } = renderComponent(sdk)
+
+    act(() => {
+      fireEvent.click(getByTestId('clear-button'))
+    })
+
+    expect(sdk.field.setValue).toHaveBeenCalledTimes(1)
+    expect(sdk.field.setValue).toHaveBeenCalledWith('#ff00ff')
+    expect(sdk.field.removeValue).toHaveBeenCalledTimes(1)
+  })
+})

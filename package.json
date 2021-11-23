@@ -35,7 +35,9 @@
     "@contentful/forma-36-fcss": "^0.3.4",
     "@contentful/forma-36-react-components": "3.100.4",
     "@contentful/forma-36-tokens": "^0.11.1",
+    "@types/lodash.debounce": "^4.0.6",
     "contentful-ui-extensions-sdk": "4.3.1",
+    "lodash.debounce": "^4.0.8",
     "prop-types": "15.7.2",
     "react": "17.0.2",
     "react-dom": "17.0.2"
