@@ -10,7 +10,7 @@
     "@babel/preset-env": "7.16.4",
     "@babel/preset-react": "7.16.0",
     "@testing-library/react": "12.1.2",
-    "cssnano": "5.0.11",
+    "cssnano": "4.1.11",
     "contentful-cli": "1.9.31",
     "eslint": "8.3.0",
     "typescript": "4.5.2",
@@ -46,5 +46,8 @@
     "last 5 Chrome version",
     "> 1%",
     "not ie <= 11"
-  ]
+  ],
+  "engines": {
+    "node": ">= 16"
+  }
 }
