@@ -1,7 +1,7 @@
 {
-  "id": "contentful-extension-color-picker",
-  "name": "contentful-extension-color-picker",
-  "srcdoc": "./build/index.html",
+  "id": "color-picker",
+  "name": "Color Picker",
+  "src": "https://gucciogucci.github.io/contentful-extension-color-picker/",
   "fieldTypes": [
     "Symbol"
   ]
