@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { render } from 'react-dom';
@@ -8,8 +9,10 @@ import { Button, Card, Flex } from '@contentful/forma-36-react-components';
 import debounce from 'lodash.debounce';
 import tokens from '@contentful/forma-36-tokens';
 
+type SubsetFieldExtensionSDK = Pick<FieldExtensionSDK, 'window' | 'field'>
+
 interface AppProps {
-  sdk: FieldExtensionSDK;
+  sdk: SubsetFieldExtensionSDK;
 }
 
 const ColorBox: React.FC<React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLDivElement>, HTMLDivElement> & { color?: string }> = ({ color, ...props }) => {
@@ -93,9 +96,46 @@ export const App = ({ sdk }: AppProps): JSX.Element => {
   );
 }
 
-init(sdk => {
-  render(<App sdk={sdk as FieldExtensionSDK} />, document.getElementById('root'));
-});
+const root = document.getElementById('root')
+
+if (root) {
+  const isInIframe = window.self !== window.top;
+
+  if (isInIframe) {
+
+    init(sdk => render(<App sdk={sdk as SubsetFieldExtensionSDK} />, root));
+
+  } else {
+    const mockSdk: SubsetFieldExtensionSDK = ({
+      field: {
+        getValue: () => { },
+        onSchemaErrorsChanged: () => () => { },
+        onValueChanged: () => () => { },
+        removeValue: () => Promise.resolve(),
+        setValue: () => Promise.resolve(undefined),
+        id: 'field-id',
+        locale: 'field-locale',
+        onIsDisabledChanged: () => () => { },
+        required: false,
+        setInvalid: () => () => { },
+        type: 'field-type',
+        validations: []
+      },
+      window: {
+        startAutoResizer: () => { },
+        stopAutoResizer: () => { },
+        updateHeight: () => { }
+      }
+    })
+
+    render((
+      <div style={{ maxWidth: '768px', margin: '20px auto 0' }}>
+        <App sdk={mockSdk} />
+      </div>
+    ), root);
+  }
+}
+
 
 /**
  * By default, iframe of the extension is fully reloaded on every save of a source file.
