@@ -1,4 +1,5 @@
-import * as React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { render } from 'react-dom';
 import { TextInput } from '@contentful/forma-36-react-components';
 import { init, FieldExtensionSDK } from 'contentful-ui-extensions-sdk';
@@ -9,59 +10,37 @@ interface AppProps {
   sdk: FieldExtensionSDK;
 }
 
-interface AppState {
-  value?: string;
-}
+export const App = ({ sdk }: AppProps): JSX.Element => {
+  const [value, setValue] = useState<string | undefined>(sdk.field.getValue())
+  const [error, setError] = useState<boolean>(false)
 
-export class App extends React.Component<AppProps, AppState> {
-  constructor(props: AppProps) {
-    super(props);
-    this.state = {
-      value: props.sdk.field.getValue() || ''
-    };
-  }
-
-  detachExternalChangeHandler: Function | null = null;
-
-  componentDidMount() {
-    this.props.sdk.window.startAutoResizer();
+  useEffect(() => {
+    sdk.window.startAutoResizer();
 
     // Handler for external field value changes (e.g. when multiple authors are working on the same entry).
-    this.detachExternalChangeHandler = this.props.sdk.field.onValueChanged(this.onExternalChange);
-  }
+    sdk.field.onValueChanged(setValue);
 
-  componentWillUnmount() {
-    if (this.detachExternalChangeHandler) {
-      this.detachExternalChangeHandler();
-    }
-  }
+    sdk.field.onSchemaErrorsChanged((errors) => setError(errors && errors.length > 0));
+  }, [])
 
-  onExternalChange = (value: string) => {
-    this.setState({ value });
-  };
-
-  onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.currentTarget.value;
-    this.setState({ value });
+  useEffect(() => {
     if (value) {
-      await this.props.sdk.field.setValue(value);
+      sdk.field.setValue(value)
     } else {
-      await this.props.sdk.field.removeValue();
+      sdk.field.removeValue()
     }
-  };
+  }, [value, sdk.field])
 
-  render() {
-    return (
-      <TextInput
-        width="large"
-        type="text"
-        id="my-field"
-        testId="my-field"
-        value={this.state.value}
-        onChange={this.onChange}
-      />
-    );
-  };
+  return (
+    <TextInput
+      id="my-field"
+      testId="my-field"
+      value={value}
+      onChange={event => setValue(event.currentTarget.value)}
+      required={sdk.field.required}
+      error={error}
+    />
+  );
 }
 
 init(sdk => {
