@@ -58,7 +58,7 @@ export const ColorPicker: React.FC<Props> = ({ required, value, onChange }) => {
         style={{
           display: 'block',
           opacity: 0,
-          height: 4,
+          height: 8,
           border: 'none',
           padding: 0,
           margin: 0,
